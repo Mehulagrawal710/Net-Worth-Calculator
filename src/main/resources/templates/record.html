@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	crossorigin="anonymous">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>user</title>
+</head>
+<style>
+@import
+	url("https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap")
+	;
+
+.box {
+	border: 2px solid #ddd;
+	padding: 2vw 5vw;
+	width: 35vw;
+	height: 50vh;
+	margin-left: 10vw;
+	text-align: center;
+	position: relative;
+	float: left;
+}
+</style>
+
+<body>
+
+	<!-- ====ALERT==== -->
+	<div
+		style="position: fixed; right: 1vw; top: 2vh; width: auto; max-width: 20vw; z-index: 2;"
+		th:if="${alert != null}"
+		th:class="${'alert alert-' + alert.bootstrapClass + ' alert-dismissible fade show'}"
+		role="alert">
+		<span th:text="${alert.msg}"></span>
+		<button type="button" class="btn-close" data-bs-dismiss="alert"
+			aria-label="Close"></button>
+	</div>
+
+	<div class="btn-group" style="float: right;">
+		<button th:text="${user.username}" type="button"
+			class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+			aria-haspopup="true" aria-expanded="false"></button>
+		<div class="dropdown-menu dropdown-menu-right">
+			<button class="dropdown-item" type="button">Edit Profile</button>
+			<button class="dropdown-item" type="button">Logout</button>
+		</div>
+	</div>
+	<hr>
+
+	<h2>User</h2>
+	<p th:text="${user}"></p>
+	
+	<div class="box" style="border:0;padding: 0;">
+		<div th:if="${netWorth > 0}" style="border: 10px solid green; border-radius: 50%; height: inherit; width: 25vw; margin: 0 5vw;">
+			<div
+				style="top: 50%; left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%); position: absolute;">
+				<h3>Your Net Worth</h3>
+				<h1 th:text="${netWorth}" style="color: green; font-size: 3em;"></h1>
+			</div>
+		</div>
+		<div th:if="${netWorth == 0}" style="border: 10px solid #ddd; border-radius: 50%; height: inherit; width: 25vw; margin: 0 5vw;">
+			<div
+				style="top: 50%; left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%); position: absolute;">
+				<h3>Your Net Worth</h3>
+				<h1 th:text="${netWorth}" style="color: #ddd; font-size: 3em;"></h1>
+			</div>
+		</div>
+		<div th:if="${netWorth < 0}" style="border: 10px solid red; border-radius: 50%; height: inherit; width: 25vw; margin: 0 5vw;">
+			<div
+				style="top: 50%; left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%); position: absolute;">
+				<h3>Your Net Worth</h3>
+				<h1 th:text="${netWorth}" style="color: red; font-size: 3em;"></h1>
+			</div>
+		</div>
+	</div>
+
+	<h2>Sections</h2>
+
+	<div class="card" style="width: 40vw; float: left; margin: 2vh 4vw;">
+		<div class="card-header">
+			<b><span>Add New Section</span></b>
+			<!-- Button trigger Add Section modal -->
+			<button style="float: right;" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#exampleModalCenter">Add Section</button>
+		</div>
+		<table class="card-table table">
+			<tbody>
+				<tr>
+					<td><i style="color: #ccc;">Add a new section for something like...your furniture asset</i></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+
+	<div th:each="section : ${sections}">
+
+		<div class="card" style="width: 40vw; float: left; margin: 2vh 4vw;">
+			<div class="card-header">
+				<b><span th:text="${section.title}"></span></b> &nbsp; <span
+					th:if="${section.type == 'asset'}" class="badge badge-success">Asset</span>
+				<span th:if="${section.type == 'liability'}"
+					class="badge badge-danger">Liability</span>
+			</div>
+			
+			<center><p th:if="${section.totalAmount==0}"><i style="color: #ccc;">No entries in this section...</i></p></center>
+			
+			<table th:if="${section.totalAmount!=0}" class="card-table table">
+				<thead>
+					<tr>
+						<th scope="col">Entity</th>
+						<th scope="col">&nbsp;&nbsp;&nbsp;&nbsp;</th>
+						<th scope="col">Amount</th>
+					</tr>
+				</thead>
+				<tbody>
+					<div th:each="entry : ${entryMap.get(section.id)}">
+					<tr>
+						<td th:text="${entry.title}"></td>
+						<td th:text="${entry.createdOn}" style="color: #ccc; font-style: italic;"></td>
+						<td th:text="${entry.amount}"></td>
+					</tr>
+					</div>
+					<tr>
+						<td><i style="color: #ccc;">Total</i></td>
+						<td></td>
+						<td th:if="${section.type=='asset'}" th:text="${section.totalAmount}" style="color: green;"></td>
+						<td th:if="${section.type=='liability'}" th:text="${section.totalAmount}" style="color: red;"></td>
+					</tr>
+				</tbody>
+			</table>
+			<form th:action="@{'/record/' + ${user.username} + '/entry'}" th:object="${newEntry}" method="post">
+				<div class="input-group mb-3" style="width: 96%; margin-left: 2%">
+				  <input th:field="*{title}" type="text" class="form-control" placeholder="Entry Name" aria-describedby="button-addon2" required>
+				  <input th:field="*{amount}" type="text" class="form-control" placeholder="Amount" aria-describedby="button-addon2" required>
+				  <input th:attr="name='belongsToSectionId'" th:value="${section.id}" type="hidden" class="form-control" placeholder="Amount" aria-describedby="button-addon2">
+				  <div class="input-group-append">
+				    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add Entry</button>
+				  </div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Add Section Modal -->
+	<div class="modal fade" id="exampleModalCenter" tabindex="-1"
+		role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLongTitle">Add Section</h5>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form th:action="@{'/record/' + ${user.username} + '/section'}"
+					th:object="${newSection}" method="post">
+					<div class="modal-body">
+						<div class="input-group mb-3">
+							<input th:field="*{title}" type="text" class="form-control"
+								placeholder="Section Title" aria-label="Title"
+								aria-describedby="basic-addon1" required>
+						</div>
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="inputGroupSelect01">Choose
+									Type</label>
+							</div>
+							<select th:field="*{type}" class="custom-select"
+								id="inputGroupSelect01" required>
+								<option th:value="'asset'">Asset</option>
+								<option th:value="'liability'">Liability</option>
+							</select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+		crossorigin="anonymous"></script>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		var formToOpen = /*[[${formToOpen}]]*/'';
+
+		/*]]>*/
+	</script>
+</body>
+</html>
