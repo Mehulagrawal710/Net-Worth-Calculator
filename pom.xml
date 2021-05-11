@@ -15,7 +15,7 @@
 	<name>NetWorth</name>
 	<description>Net Worth Calculator</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>1.8</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
